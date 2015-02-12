@@ -122,15 +122,31 @@ public class AmqpClientClass implements MessageOutput
         }
         try
         {
-            Map<String, Object> fields = message.getFields();
-            fields.put("message", message.getMessage());
-            fields.put("source", message.getSource());
-            fields.put("id", message.getId());
-            fields.put("sourceInputId", message.getSourceInputId());
-            fields.put("dateTime", message.getTimestamp().toDateTimeISO());
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(fields);
-            amqpClient.sendMessage(json);
+            //Map<String, Object> fieldsImmutable = message.getFields();
+            Map<String, Object> fields = new HashMap<String, Object>();
+            //fields.putAll(fieldsImmutable);
+
+            if(message.hasField("action"))
+            {
+                fields.put("action", message.getField("action"));
+            }
+            if(message.hasField("processId"))
+            {
+                fields.put("processId", message.getField("processId"));
+            }
+            if(message.hasField("apiVersion"))
+            {
+                fields.put("apiVersion", message.getField("apiVersion"));
+            }
+            fields.put("taskStatus", "completed");
+//            fields.put("message", message.getMessage());
+//            fields.put("source", message.getSource());
+//            fields.put("id", message.getId());
+//            fields.put("sourceInputId", message.getSourceInputId());
+//            fields.put("dateTime", message.getTimestamp().toDateTimeISO());
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            String json = objectMapper.writeValueAsString(fields);
+            amqpClient.sendMessage(fields, message.getMessage());
             //amqpClient.sendMessage(message.getMessage());
         }
         catch (Exception ex)

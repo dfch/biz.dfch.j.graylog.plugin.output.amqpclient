@@ -66,13 +66,13 @@ public class AmqpClientTest
         assertEquals(true, _amqpClient.connect(null, 0, null, null, null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    @Category(biz.dfch.j.graylog2.plugin.output.AmqpClientTest.class)
-    public void a110_doSendMessageThrowsIllegalArgumentException() throws IOException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
-    {
-        _amqpClient.connect();
-        _amqpClient.sendMessage(null);
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    @Category(biz.dfch.j.graylog2.plugin.output.AmqpClientTest.class)
+//    public void a110_doSendMessageThrowsIllegalArgumentException() throws IOException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+//    {
+//        _amqpClient.connect();
+//        _amqpClient.sendMessage(null);
+//    }
 
     @Test
     public void a120_doSendMessageReturnsTrue() throws IOException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException

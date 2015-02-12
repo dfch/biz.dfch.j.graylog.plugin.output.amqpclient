@@ -1,5 +1,6 @@
 package biz.dfch.j.graylog2.plugin.output;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
@@ -17,6 +18,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.IllegalFormatCodePointException;
+import java.util.Map;
 
 /**
  * Created by root on 2/10/15.
@@ -126,17 +128,32 @@ public class AmqpClient extends AbstractAmqpClient
         return fReturn;
     }
 
+    boolean bindToExchange(String name, String type, boolean durable) throws IOException
+    {
+        if(null == name || name.isEmpty())
+        {
+            throw new IllegalArgumentException(String.format("%s: Parameter validation FAILED. Exchange name cannot be null.", name));
+        }
+        if(null == type || type.isEmpty())
+        {
+            throw new IllegalArgumentException(String.format("%s: Parameter validation FAILED. Exchange type cannot be null.", type));
+        }
+        boolean fReturn = false;
+
+        channel.exchangeDeclare(name, type, durable);
+        publishTarget = name;
+        fReturn = true;
+
+        return fReturn;
+    }
+
     boolean bindToExchange(String name) throws IOException
     {
         if(null == name || name.isEmpty())
         {
             throw new IllegalArgumentException(String.format("%s: Parameter validation FAILED. Exchange name cannot be null.", name));
         }
-        boolean fReturn = false;
-        channel.exchangeDeclare(name, EXCHANGE_TYPE, EXCHANGE_DURABLE);
-        publishTarget = name;
-        fReturn = true;
-        return fReturn;
+        return bindToExchange(name, EXCHANGE_TYPE, EXCHANGE_DURABLE);
     }
 
     boolean connect
@@ -171,11 +188,6 @@ public class AmqpClient extends AbstractAmqpClient
             this.uri = uri;
 
             fReturn = true;
-        }
-        catch(IOException ex)
-        {
-            LOG.error(String.format("%s: Declaring EXCHANGE_NAME FAILED", EXCHANGE_NAME));
-            throw ex;
         }
         catch(URISyntaxException ex)
         {
@@ -215,42 +227,94 @@ public class AmqpClient extends AbstractAmqpClient
 
         try
         {
+            fReturn = sendMessage(ROUTING_KEY, null, message);
+        }
+        catch(IOException ex)
+        {
+            throw new IOException(String.format("%s: Publishing message FAILED.", EXCHANGE_NAME), ex);
+        }
+        finally
+        {
+            // N/A
+        }
+        return fReturn;
+    }
+
+    boolean sendMessage
+            (
+                    Map<String, Object> header
+                    ,
+                    String message
+            )
+            throws IllegalArgumentException, IOException
+    {
+        boolean fReturn = false;
+
+        try
+        {
+            fReturn = sendMessage(ROUTING_KEY, header, message);
+        }
+        catch(IOException ex)
+        {
+            throw new IOException(String.format("%s: Publishing message FAILED.", EXCHANGE_NAME), ex);
+        }
+        finally
+        {
+            // N/A
+        }
+        return fReturn;
+    }
+
+    boolean sendMessage
+            (
+                    String routingKey
+                    ,
+                    Map<String, Object> header
+                    ,
+                    String message
+            )
+            throws IllegalArgumentException, IOException
+    {
+        boolean fReturn = false;
+
+        try
+        {
             if(null == channel || !channel.isOpen())
             {
                 throw new ProtocolException(String.format("channel: No connection established."));
             }
             if(null == message)
             {
-                throw new IllegalArgumentException("message: Parameter validation FAILED. Parameter cannot be null.");
+                message = "";
             }
-            if(message.isEmpty())
+            if(null == routingKey)
             {
-                return false;
+                routingKey = ROUTING_KEY;
             }
-
-            // do something incredibly useful here
 
             System.out.println(String.format("message: '%s'", message));
             byte[] abMessage = message.getBytes();
 
-            // This is actually not really working , so we leave it to send without headers
-//            java.util.Map<java.lang.String, java.lang.Object> map = Maps.newHashMap();
-//            map.put("action", "doit");
-//            map.put("processId", "42");
-//            map.put("apiVersion", "1");
-//            map.put("taskStatus", "ALLGOOD");
+            com.rabbitmq.client.AMQP.BasicProperties basicProperties = null;
+            if(null != header) {
+                basicProperties = new com.rabbitmq.client.AMQP.BasicProperties(null, null, header, null, null, null, null, null, null, null, null, null, null, null);
+            }
+            channel.basicPublish(publishTarget, routingKey, basicProperties, abMessage);
+
+//            // This is actually not really working , so we leave it to send without headers
+//            Map<java.lang.String, java.lang.Object> mapImmutable = Maps.newHashMap();
+//            Map<java.lang.String, java.lang.Object> map = Maps.newHashMap();
+//            map.putAll(mapImmutable);
 //
-//            com.rabbitmq.client.AMQP.BasicProperties basicProperties = new com.rabbitmq.client.AMQP.BasicProperties(null, null, map, null, null, null, null, null, null, null, null, null, null, null);
-//            channel.basicPublish(publishTarget, ROUTING_KEY, basicProperties, abMessage);
-
-            // publish the message to the exchange or queue
-            channel.basicPublish(publishTarget, ROUTING_KEY, null, abMessage);
-
+//
+//            // publish the message to the exchange or queue
+//            //channel.basicPublish(publishTarget, ROUTING_KEY, null, abMessage);
+//
             fReturn = true;
         }
         catch(IOException ex)
         {
-            throw new IOException(String.format("%s: Publishing message FAILED.", EXCHANGE_NAME), ex);
+            throw new IOException(String.format("%s: Publishing message FAILED.", publishTarget), ex);
         }
         catch(IllegalArgumentException ex)
         {
