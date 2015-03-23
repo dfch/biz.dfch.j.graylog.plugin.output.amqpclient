@@ -1,11 +1,11 @@
-package biz.dfch.j.graylog2.plugin.output;
+package biz.dfch.j.graylog.plugin.output;
 
 import java.io.IOException;
 
 /**
  * Pseudo-abstract class
  *
- * When time do some
+ * When time do some proper abstract class
  */
 public abstract class AbstractAmqpClient
 {

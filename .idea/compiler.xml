@@ -26,5 +26,8 @@
         <module name="gelfamqp" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="gelfamqp" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>

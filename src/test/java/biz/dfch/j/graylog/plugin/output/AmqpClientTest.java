@@ -1,4 +1,4 @@
-package biz.dfch.j.graylog2.plugin.output;
+package biz.dfch.j.graylog.plugin.output;
 
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -67,7 +67,7 @@ public class AmqpClientTest
     }
 
 //    @Test(expected = IllegalArgumentException.class)
-//    @Category(biz.dfch.j.graylog2.plugin.output.AmqpClientTest.class)
+//    @Category(AmqpClientTest.class)
 //    public void a110_doSendMessageThrowsIllegalArgumentException() throws IOException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
 //    {
 //        _amqpClient.connect();

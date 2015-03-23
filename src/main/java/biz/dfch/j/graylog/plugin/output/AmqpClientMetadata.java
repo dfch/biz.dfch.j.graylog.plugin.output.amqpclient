@@ -1,9 +1,10 @@
-package biz.dfch.j.graylog2.plugin.output;
+package biz.dfch.j.graylog.plugin.output;
 
 import org.graylog2.plugin.PluginMetaData;
 import org.graylog2.plugin.ServerStatus;
 import org.graylog2.plugin.Version;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,22 +16,22 @@ public class AmqpClientMetadata implements PluginMetaData
     @Override
     public String getUniqueId()
     {
-        return "1e6abecf-e53a-4d57-8944-9d66537f3090";
+        return "biz.dfch.j.graylog.plugin.output.AmqpClientPlugin";
     }
     @Override
     public String getName()
     {
-        return "SCCloud AMQP Output";
+        return "d-fens AMQP Output";
     }
     @Override
     public String getAuthor()
     {
-        return "Ronald Rink, SCCloud";
+        return "Ronald Rink, d-fens GmbH";
     }
     @Override
     public URI getURL()
     {
-        return URI.create("http://www.swisscom.ch");
+        return URI.create("http://d-fens.ch");
     }
     @Override
     public Version getVersion()
@@ -40,7 +41,7 @@ public class AmqpClientMetadata implements PluginMetaData
     @Override
     public String getDescription()
     {
-        return "SCCloud AMQP Output. With this plugin you can send arbitrary messages to an AMQP Exchange.";
+        return "d-fens AMQP Output. With this plugin you can send arbitrary messages to an AMQP Exchange or Queue.";
     }
     @Override
     public Version getRequiredVersion()
@@ -50,6 +51,6 @@ public class AmqpClientMetadata implements PluginMetaData
     @Override
     public Set<ServerStatus.Capability> getRequiredCapabilities()
     {
-        return java.util.EnumSet.of(ServerStatus.Capability.SERVER);
+        return Collections.emptySet();
     }
 }

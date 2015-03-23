@@ -1,6 +1,5 @@
-package biz.dfch.j.graylog2.plugin.output;
+package biz.dfch.j.graylog.plugin.output;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.assistedinject.Assisted;
 import org.graylog2.plugin.Message;
@@ -10,7 +9,7 @@ import org.graylog2.plugin.configuration.fields.*;
 import org.graylog2.plugin.outputs.MessageOutput;
 import org.graylog2.plugin.outputs.MessageOutputConfigurationException;
 import org.graylog2.plugin.streams.Stream;
-import org.joda.time.DateTime;
+import org.msgpack.annotation.NotNullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,6 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AmqpClientClass implements MessageOutput
@@ -44,20 +42,11 @@ public class AmqpClientClass implements MessageOutput
     @Inject
     public AmqpClientClass
             (
-                    @Assisted Stream stream,
-                    @Assisted Configuration configuration
+                    @NotNullable @Assisted Stream stream,
+                    @NotNullable @Assisted Configuration configuration
             )
             throws MessageOutputConfigurationException
     {
-        if(null == stream)
-        {
-            throw new NullPointerException("stream: Parameter validation FAILED. Parameter cannot be null");
-        }
-        if(null == configuration)
-        {
-            throw new NullPointerException("configuration: Parameter validation FAILED. Parameter cannot be null");
-        }
-
         this.configuration = configuration;
 
         try
@@ -87,15 +76,8 @@ public class AmqpClientClass implements MessageOutput
                 throw new ProtocolException(String.format("%s: Unsupported publish target.", configuration.getString(CONFIG_AMQP_PUBLISH_TARGET)));
             }
         }
-        catch (NoSuchAlgorithmException ex)
-        {
-            LOG.error("Can not connect to AMQP server " + configuration.getString(CONFIG_AMQP_SERVER_NAME), ex);
-        }
-        catch (KeyManagementException ex)
-        {
-            LOG.error("Can not connect to AMQP server " + configuration.getString(CONFIG_AMQP_SERVER_NAME), ex);
-        }
-        catch (URISyntaxException ex)
+        // http://stackoverflow.com/questions/18722485/cant-define-multi-catches-in-intellij
+        catch (NoSuchAlgorithmException | KeyManagementException | URISyntaxException ex)
         {
             LOG.error("Can not connect to AMQP server " + configuration.getString(CONFIG_AMQP_SERVER_NAME), ex);
         }

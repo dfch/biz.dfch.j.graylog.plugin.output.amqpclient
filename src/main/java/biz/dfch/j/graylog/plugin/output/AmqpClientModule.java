@@ -1,4 +1,4 @@
-package biz.dfch.j.graylog2.plugin.output;
+package biz.dfch.j.graylog.plugin.output;
 
 import com.google.inject.multibindings.MapBinder;
 import org.graylog2.plugin.PluginModule;
